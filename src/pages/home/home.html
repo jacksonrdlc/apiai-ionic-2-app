@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>WWT Assistant</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+
+  <ion-item>
+    <ion-label stacked>Text</ion-label>
+    <ion-textarea rows="5" [(ngModel)]="text"></ion-textarea>
+  </ion-item>
+
+  <button ion-button clear (click)="SpeakText()">Text to Speech</button>
+
+  <br>
+  <button ion-button full (click)="listenForSpeech()"><ion-icon name="mic"></ion-icon></button>
+
+  <button ion-button clear (click)="isSpeechSuported()">Is Speech Supported?</button>
+  <button ion-button clear (click)="getPermission()">Get Permission</button>
+  <button ion-button clear (click)="hasPermission()">Has Permission?</button>
+  <button ion-button clear (click)="getSupportedLanguages()">Get Supported Languages</button>
+
+  <ion-card>
+    <ion-card-content *ngFor="let speech of speechList">
+      <p>{{speech}}</p>
+    </ion-card-content>
+  </ion-card>
+
+
+</ion-content>
