@@ -4,7 +4,7 @@ import { Platform } from 'ionic-angular';
 import { TextToSpeech } from '@ionic-native/text-to-speech';
 import { SpeechRecognition, SpeechRecognitionListeningOptionsAndroid, SpeechRecognitionListeningOptionsIOS } from '@ionic-native/speech-recognition';
 
-declare var plugins;
+declare var ApiAIPlugin: any;
 
 @Component({
   selector: 'page-home',
@@ -31,7 +31,7 @@ export class HomePage {
     }
   };
 
-  listenForSpeech(): void {
+  listenForSpeech():void {
     this.androidOptions = {
         prompt: 'Speak into your phone!',
         matches: 1
@@ -46,14 +46,14 @@ export class HomePage {
     }
     else if(this.platform.is('ios')){
       // this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
-      (<any>window).plugins.ApiAIPlugin.setListeningStartCallback(function () {
+      ApiAIPlugin.setListeningStartCallback(function () {
         console.log("listening started");
       },function (response) {
-            // place your result processing here 
+            // place your result processing here
             alert(JSON.stringify(response));
         }),(err) => {console.log(err)};
       setTimeout(() => {
-       (<any>window).plugins.ApiAIPlugin.setListeningFinishCallback(function () {
+       ApiAIPlugin.setListeningFinishCallback(function () {
           console.log("listening stopped");
         });
       }, 5000);
@@ -93,7 +93,7 @@ export class HomePage {
       console.log(e)
     }
   };
-  
+
   async isSpeechSupported():Promise<boolean> {
     const isAvailable = await this.speech.isRecognitionAvailable();
     console.log(isAvailable)

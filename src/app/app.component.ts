@@ -6,7 +6,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { HomePage } from '../pages/home/home';
 import { ListPage } from '../pages/list/list';
 
-declare var plugins;
+declare var ApiAIPlugin: any;
 
 @Component({
   templateUrl: 'app.html'
@@ -36,11 +36,11 @@ export class MyApp {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
-      (<any>window).plugins.ApiAIPlugin.init(
+      ApiAIPlugin.init(
         {
-            clientAccessToken: "0b7e616b5cf04d4a9d0c19ae94feb5ca", // insert your client access key here 
-            lang: "en" // set lang tag from list of supported languages 
-        }, 
+            clientAccessToken: "0b7e616b5cf04d4a9d0c19ae94feb5ca", // insert your client access key here
+            lang: "en" // set lang tag from list of supported languages
+        },
         function(result) { /* success processing */ },
         function(error) { /* error processing */ }
     );
