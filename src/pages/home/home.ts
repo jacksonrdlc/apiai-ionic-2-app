@@ -71,7 +71,7 @@ export class HomePage {
             },
             function (response) {
                 // place your result processing here
-                alert(JSON.stringify(response));
+                alert(response.result.fulfillment.speech);
             },
             function (error) {
                 // place your error processing here
