@@ -16,6 +16,8 @@ export class HomePage {
   speechList : Array<string> = [];
   androidOptions: SpeechRecognitionListeningOptionsAndroid;
   iosOptions: SpeechRecognitionListeningOptionsIOS;
+  textBody: string;
+  // voiceBody: {};
 
   constructor(private speech: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
 
@@ -25,6 +27,16 @@ export class HomePage {
     try{
       await this.tts.speak(this.text);
       console.log("Successfully spoke " + this.text)
+    }
+    catch(e){
+      console.log(e)
+    }
+  };
+
+  async SpeakResult(speech):Promise<any> {
+    try{
+      await this.tts.speak(speech);
+      console.log("Successfully spoke " + speech)
     }
     catch(e){
       console.log(e)
@@ -42,24 +54,56 @@ export class HomePage {
     };
 
     if(this.platform.is('android')){
-      this.speech.startListening(this.androidOptions).subscribe(data => this.speechList = data, error => console.log(error));
+      this.speech.startListening(this.androidOptions).subscribe(data => this.SendTextFromVoice(data), error => console.log(error));
     }
     else if(this.platform.is('ios')){
-      // this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
-      ApiAIPlugin.setListeningStartCallback(function () {
-        console.log("listening started");
-      },function (response) {
-            // place your result processing here
-            alert(JSON.stringify(response));
-        }),(err) => {console.log(err)};
-      setTimeout(() => {
-       ApiAIPlugin.setListeningFinishCallback(function () {
-          console.log("listening stopped");
-        });
-      }, 5000);
+      this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
       console.log(this.speechList);
     }
   };
+
+  async SendText():Promise<any> {
+    try {
+        console.log(this.textBody);
+        await ApiAIPlugin.requestText(
+            {
+                query: this.textBody
+            },
+            function (response) {
+                // place your result processing here
+                alert(JSON.stringify(response));
+            },
+            function (error) {
+                // place your error processing here
+                alert(error);
+            });
+    } catch (e) {
+        alert(e);
+    }
+  }
+
+  async SendTextFromVoice(query):Promise<any> {
+    try {
+        console.log(this.textBody);
+        await ApiAIPlugin.requestText(
+            {
+                query: query
+            },
+            function (response) {
+                // place your result processing here
+                let voiceBody = response;
+                if(voiceBody){
+                  alert(voiceBody.result.fulfillment.speech)
+                }
+            },
+            function (error) {
+                // place your error processing here
+                alert(error);
+            });
+    } catch (e) {
+        alert(e);
+    }
+  }
 
   async getSupportedLanguages():Promise<Array<string>> {
     try{

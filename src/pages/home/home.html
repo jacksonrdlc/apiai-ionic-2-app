@@ -9,12 +9,20 @@
 
 <ion-content padding>
 
-  <ion-item>
+  <!--<ion-item>
     <ion-label stacked>Text</ion-label>
     <ion-textarea rows="5" [(ngModel)]="text"></ion-textarea>
   </ion-item>
 
-  <button ion-button clear (click)="SpeakText()">Text to Speech</button>
+  <button ion-button clear (click)="SendText(query_text)">Text the Bot</button>-->
+
+  <form (ngSubmit)="SendText()">
+      <ion-item>
+        <ion-label stacked>Text</ion-label>
+        <ion-textarea rows="5" [(ngModel)]="textBody" name="textBody"></ion-textarea>
+      </ion-item>
+      <button ion-button type="submit" block>Send to Bot</button>
+    </form>
 
   <br>
   <button ion-button full (click)="listenForSpeech()"><ion-icon name="mic"></ion-icon></button>
