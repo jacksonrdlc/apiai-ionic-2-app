@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Platform } from 'ionic-angular';
 import { TextToSpeech } from '@ionic-native/text-to-speech';
@@ -14,13 +14,26 @@ export class HomePage {
 
   text: string;
   speechList : Array<string> = [];
+  messages : Array<object> = [];
   androidOptions: SpeechRecognitionListeningOptionsAndroid;
   iosOptions: SpeechRecognitionListeningOptionsIOS;
   textBody: string;
-  // voiceBody: {};
+  alternate: boolean;
+  hideTime: boolean;
+  newMessage: {};
+  responseMessage: {};
 
-  constructor(private speech: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
+  constructor(private ref: ChangeDetectorRef, private speech: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
+      this.initializeApp()
+      this.hideTime = true;
+  }
 
+  initializeApp() {
+    this.platform.ready().then(() => {
+      if(!this.hasPermission()){
+        this.getPermission()
+      }
+    });
   }
 
   async SpeakText():Promise<any> {
@@ -33,13 +46,15 @@ export class HomePage {
     }
   };
 
-  async SpeakResult(speech):Promise<any> {
+  async SpeakResult(data):Promise<any> {
     try{
-      await this.tts.speak(speech);
-      console.log("Successfully spoke " + speech)
+      const a = await this.SendTextFromVoice(data)
+      // await this.tts.speak(a);
+      // console.log("Successfully spoke " + a)
+      alert(a);
     }
     catch(e){
-      console.log(e)
+      alert(e)
     }
   };
 
@@ -54,7 +69,7 @@ export class HomePage {
     };
 
     if(this.platform.is('android')){
-      this.speech.startListening(this.androidOptions).subscribe(data => this.SendTextFromVoice(data), error => console.log(error));
+      this.speech.startListening(this.androidOptions).subscribe(data => this.SendText(data), error => console.log(error));
     }
     else if(this.platform.is('ios')){
       this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
@@ -62,20 +77,25 @@ export class HomePage {
     }
   };
 
-  async SendText():Promise<any> {
+  async SendText(query):Promise<any> {
     try {
-        console.log(this.textBody);
         await ApiAIPlugin.requestText(
-            {
-                query: this.textBody
-            },
-            function (response) {
+          {
+            query
+          },
+           (response) => {
                 // place your result processing here
-                alert(response.result.fulfillment.speech);
+                console.log('3', response.result.fulfillment.speech)
+                this.messages.push({
+                  isHuman: false,
+                  text: response.result.fulfillment.speech,
+                  time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                });
+                this.ref.detectChanges();
             },
-            function (error) {
+            (error) => {
                 // place your error processing here
-                alert(error);
+                console.error(error);
             });
     } catch (e) {
         alert(e);
@@ -84,7 +104,7 @@ export class HomePage {
 
   async SendTextFromVoice(query):Promise<any> {
     try {
-        console.log(this.textBody);
+        console.log(query);
         await ApiAIPlugin.requestText(
             {
                 query: query
@@ -93,7 +113,7 @@ export class HomePage {
                 // place your result processing here
                 let voiceBody = response;
                 if(voiceBody){
-                  alert(voiceBody.result.fulfillment.speech)
+                  return voiceBody.result.fulfillment.speech
                 }
             },
             function (error) {
@@ -144,4 +164,16 @@ export class HomePage {
     return isAvailable;
   };
 
+  async sendMessage():Promise<any> {
+
+    this.messages.push({
+      isHuman: true,
+      text: this.newMessage,
+      time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+    });
+
+    this.SendText(this.newMessage)
+
+    delete this.newMessage;
+  };
 }

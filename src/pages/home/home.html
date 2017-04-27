@@ -3,40 +3,35 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>WWT Assistant</ion-title>
+    <ion-title>AI Assistant</ion-title>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content padding class="content-stable" on-swipe-left="hideTime = false" on-swipe-right="hideTime = true">
 
-  <!--<ion-item>
-    <ion-label stacked>Text</ion-label>
-    <ion-textarea rows="5" [(ngModel)]="text"></ion-textarea>
-  </ion-item>
+  <div *ngFor="let message of messages" [ngClass]="{'other': !message.isHuman}" class="messages">
 
-  <button ion-button clear (click)="SendText(query_text)">Text the Bot</button>-->
+    <div class="message" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
+      <span>{{ message.text }}</span>
+    </div>
 
-  <form (ngSubmit)="SendText()">
-      <ion-item>
-        <ion-label stacked>Text</ion-label>
-        <ion-textarea rows="5" [(ngModel)]="textBody" name="textBody"></ion-textarea>
-      </ion-item>
-      <button ion-button type="submit" block>Send to Bot</button>
-    </form>
+    <div class="time" [ngClass]="{'slide-right': hideTime, '': !hideTime}">{{message.time}}</div>
 
-  <br>
-  <button ion-button full (click)="listenForSpeech()"><ion-icon name="mic"></ion-icon></button>
 
-  <button ion-button clear (click)="isSpeechSuported()">Is Speech Supported?</button>
-  <button ion-button clear (click)="getPermission()">Get Permission</button>
-  <button ion-button clear (click)="hasPermission()">Has Permission?</button>
-  <button ion-button clear (click)="getSupportedLanguages()">Get Supported Languages</button>
-
-  <ion-card>
-    <ion-card-content *ngFor="let speech of speechList">
-      <p>{{speech}}</p>
-    </ion-card-content>
-  </ion-card>
-
+  </div>
 
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar position="bottom">
+
+      <ion-badge class="message-form-badge" (click)="listenForSpeech()">
+        <ion-icon name="mic"></ion-icon>
+      </ion-badge>
+
+      <input type="text" placeholder="Type a message..." [(ngModel)]="newMessage">
+
+      <button type="submit" small class="message-form-button" (click)="sendMessage()">Send <ion-icon name="send"></ion-icon></button>
+
+  </ion-toolbar>
+</ion-footer>
