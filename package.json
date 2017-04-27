@@ -50,9 +50,5 @@
       "locator": "ios"
     }
   ],
-<<<<<<< HEAD
-  "description": "wwt-assistantionic "
-=======
   "description": "ai-assistant: An Ionic project"
->>>>>>> origin/master
 }

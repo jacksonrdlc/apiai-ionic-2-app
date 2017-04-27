@@ -3,35 +3,25 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>AI Assistant</ion-title>
+    <ion-title>WWT Assistant</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding class="content-stable" on-swipe-left="hideTime = false" on-swipe-right="hideTime = true">
-
   <div *ngFor="let message of messages" [ngClass]="{'other': !message.isHuman}" class="messages">
-
     <div class="message" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
       <span>{{ message.text }}</span>
     </div>
-
     <div class="time" [ngClass]="{'slide-right': hideTime, '': !hideTime}">{{message.time}}</div>
-
-
   </div>
-
 </ion-content>
 
 <ion-footer>
   <ion-toolbar position="bottom">
-
       <ion-badge class="message-form-badge" (click)="listenForSpeech()">
         <ion-icon name="mic"></ion-icon>
       </ion-badge>
-
       <input type="text" placeholder="Type a message..." [(ngModel)]="newMessage">
-
       <button type="submit" small class="message-form-button" (click)="sendMessage()">Send <ion-icon name="send"></ion-icon></button>
-
   </ion-toolbar>
 </ion-footer>

@@ -69,7 +69,17 @@ export class HomePage {
     };
 
     if(this.platform.is('android')){
-      this.speech.startListening(this.androidOptions).subscribe(data => this.SendText(data), error => console.log(error));
+      this.speech.startListening(this.androidOptions).subscribe(
+        (data) => {
+          this.messages.push({
+            isHuman: true,
+            text: data,
+            time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+          });
+          this.SendText(data)
+      }, (error) => {
+          console.log(error)
+      });
     }
     else if(this.platform.is('ios')){
       this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
@@ -84,7 +94,6 @@ export class HomePage {
             query
           },
            (response) => {
-                // place your result processing here
                 console.log('3', response.result.fulfillment.speech)
                 this.messages.push({
                   isHuman: false,
@@ -94,7 +103,6 @@ export class HomePage {
                 this.ref.detectChanges();
             },
             (error) => {
-                // place your error processing here
                 console.error(error);
             });
     } catch (e) {
