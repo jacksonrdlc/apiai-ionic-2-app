@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { SpeechRecognition } from '@ionic-native/speech-recognition';
 
 import { HomePage } from '../pages/home/home';
 import { ListPage } from '../pages/list/list';
@@ -18,7 +19,7 @@ export class MyApp {
 
   pages: Array<{title: string, component: any}>;
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
+  constructor(private speech: SpeechRecognition, public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
     this.initializeApp();
 
     // used for an example of ngFor and navigation
@@ -28,6 +29,17 @@ export class MyApp {
     ];
 
   }
+
+  async getPermission():Promise<void> {
+    try{
+      const permission = await this.speech.requestPermission();
+      console.log(permission)
+      return permission;
+    }
+    catch(e){
+      console.log(e)
+    }
+  };
 
   initializeApp() {
     this.platform.ready().then(() => {

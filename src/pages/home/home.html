@@ -9,8 +9,16 @@
 
 <ion-content padding class="content-stable" on-swipe-left="hideTime = false" on-swipe-right="hideTime = true">
   <div *ngFor="let message of messages" [ngClass]="{'other': !message.isHuman}" class="messages">
-    <div class="message" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
+    <div class="message" *ngIf="message.isHuman" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
       <span>{{ message.text }}</span>
+    </div>
+    <div class="message" *ngIf="!message.isHuman && !message.layout" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
+      <span>{{ message.text.speech }}</span>
+    </div>
+    <div class="opportunity" *ngIf="!message.isHuman && message.layout === 'opportunityList'" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
+      <div *ngFor="let opp of message.text.data.opportunityList">
+        <span>Name: {{ opp.Name }}</span> <span>Revenue: {{ opp.Total_Revenue__c }}</span>
+      </div>
     </div>
     <div class="time" [ngClass]="{'slide-right': hideTime, '': !hideTime}">{{message.time}}</div>
   </div>

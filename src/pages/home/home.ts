@@ -18,14 +18,18 @@ export class HomePage {
   androidOptions: SpeechRecognitionListeningOptionsAndroid;
   iosOptions: SpeechRecognitionListeningOptionsIOS;
   textBody: string;
+  voiceBody: string;
   alternate: boolean;
   hideTime: boolean;
+  verbalResponse: boolean;
   newMessage: {};
   responseMessage: {};
+  botTalk: any;
 
-  constructor(private ref: ChangeDetectorRef, private speech: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
+  constructor(private ref: ChangeDetectorRef, private speechy: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
       this.initializeApp()
       this.hideTime = true;
+      this.verbalResponse = true;
   }
 
   initializeApp() {
@@ -36,27 +40,15 @@ export class HomePage {
     });
   }
 
-  async SpeakText():Promise<any> {
+  async SpeakText(voice):Promise<any> {
     try{
-      await this.tts.speak(this.text);
-      console.log("Successfully spoke " + this.text)
+      await this.tts.speak(voice);
+      console.log("Successfully spoke")
     }
     catch(e){
       console.log(e)
     }
-  };
-
-  async SpeakResult(data):Promise<any> {
-    try{
-      const a = await this.SendTextFromVoice(data)
-      // await this.tts.speak(a);
-      // console.log("Successfully spoke " + a)
-      alert(a);
-    }
-    catch(e){
-      alert(e)
-    }
-  };
+  }
 
   listenForSpeech():void {
     this.androidOptions = {
@@ -69,23 +61,24 @@ export class HomePage {
     };
 
     if(this.platform.is('android')){
-      this.speech.startListening(this.androidOptions).subscribe(
+      this.speechy.startListening(this.androidOptions).subscribe(
         (data) => {
           this.messages.push({
             isHuman: true,
+            layout:'',
             text: data,
             time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
           });
-          this.SendText(data)
+          this.SendTextFromVoice(data)
       }, (error) => {
           console.log(error)
       });
     }
     else if(this.platform.is('ios')){
-      this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
+      this.speechy.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
       console.log(this.speechList);
     }
-  };
+  }
 
   async SendText(query):Promise<any> {
     try {
@@ -94,13 +87,28 @@ export class HomePage {
             query
           },
            (response) => {
-                console.log('3', response.result.fulfillment.speech)
-                this.messages.push({
-                  isHuman: false,
-                  text: response.result.fulfillment.speech,
-                  time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
-                });
+            //  let layout = response.result.fulfillment.data.layout;
+            //  let speech = response.result.fulfillment;
+               console.log(JSON.stringify(response.result.fulfillment))
+
+                // console.log(JSON.stringify)this.botTalk.result.fulfillment.data)
+
+                // this.messages.push({
+                //   isHuman: false,
+                //   layout: layout,
+                //   text: speech,
+                //   time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                // });
                 this.ref.detectChanges();
+              //  } else {
+              //    this.messages.push({
+              //     isHuman: false,
+              //     layout: '',
+              //     text: "I'm sorry. I could not find an answer to that request.",
+              //     time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+              //   });
+              //   this.ref.detectChanges();
+              //  }
             },
             (error) => {
                 console.error(error);
@@ -112,21 +120,37 @@ export class HomePage {
 
   async SendTextFromVoice(query):Promise<any> {
     try {
-        console.log(query);
         await ApiAIPlugin.requestText(
-            {
-                query: query
+          {
+            query
+          },
+           (response) => {
+             if(response.result.fulfillment.speech){
+                let voice = response.result.fulfillment.speech
+                console.log('3', voice)
+                this.messages.push({
+                  isHuman: false,
+                  layout: response.result.fulfillment.data.layout,
+                  text: voice,
+                  time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                });
+                this.ref.detectChanges();
+                this.SpeakText(voice)
+             } else {
+               let voice = "I'm sorry. I could not find an answer to that request."
+                console.log('3', voice)
+                this.messages.push({
+                  isHuman: false,
+                  layout: response.result.fulfillment.data.layout,
+                  text: voice,
+                  time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                });
+                this.ref.detectChanges();
+                this.SpeakText(voice)
+             }
             },
-            function (response) {
-                // place your result processing here
-                let voiceBody = response;
-                if(voiceBody){
-                  return voiceBody.result.fulfillment.speech
-                }
-            },
-            function (error) {
-                // place your error processing here
-                alert(error);
+            (error) => {
+                console.error(error);
             });
     } catch (e) {
         alert(e);
@@ -135,47 +159,48 @@ export class HomePage {
 
   async getSupportedLanguages():Promise<Array<string>> {
     try{
-      const languages = await this.speech.getSupportedLanguages();
+      const languages = await this.speechy.getSupportedLanguages();
       console.log(languages);
       return languages;
     }
     catch(e){
       console.error(e)
     }
-  };
+  }
 
   async hasPermission():Promise<boolean> {
     try{
-      const permission = await this.speech.hasPermission();
+      const permission = await this.speechy.hasPermission();
       console.log(permission)
       return permission;
     }
     catch(e){
       console.log(e)
     }
-  };
+  }
 
   async getPermission():Promise<void> {
     try{
-      const permission = await this.speech.requestPermission();
+      const permission = await this.speechy.requestPermission();
       console.log(permission)
       return permission;
     }
     catch(e){
       console.log(e)
     }
-  };
+  }
 
   async isSpeechSupported():Promise<boolean> {
-    const isAvailable = await this.speech.isRecognitionAvailable();
+    const isAvailable = await this.speechy.isRecognitionAvailable();
     console.log(isAvailable)
     return isAvailable;
-  };
+  }
 
   async sendMessage():Promise<any> {
 
     this.messages.push({
       isHuman: true,
+      layout: '',
       text: this.newMessage,
       time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
     });
@@ -183,5 +208,9 @@ export class HomePage {
     this.SendText(this.newMessage)
 
     delete this.newMessage;
-  };
+  }
+
+  buildCardLayout(data) {
+      
+  }
 }

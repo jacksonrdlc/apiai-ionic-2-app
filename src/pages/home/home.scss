@@ -1,4 +1,3 @@
-
 $stable: #f8f8f8 !default;
 .scroll {
   padding: 10px 0 50px;
@@ -43,7 +42,18 @@ ion-content {
       color: black;
       background-color: #C7C7CC;
     }
+    .opportunity {
+      span {
+        border: 1px solid grey;
+        display: inline-block;
+        color: black;
+        padding: 10px;
+        text-align: left;
+        max-width: 300px;
+      }
+    }
   }
+  
   span {
     background: #007AFF;
     display: inline-block;
