@@ -24,9 +24,8 @@ export class HomePage {
   verbalResponse: boolean;
   newMessage: {};
   responseMessage: {};
-  botTalk: any;
 
-  constructor(private ref: ChangeDetectorRef, private speechy: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
+  constructor(private ref: ChangeDetectorRef, private speech: SpeechRecognition, private tts: TextToSpeech, public navCtrl: NavController, public platform: Platform) {
       this.initializeApp()
       this.hideTime = true;
       this.verbalResponse = true;
@@ -61,7 +60,7 @@ export class HomePage {
     };
 
     if(this.platform.is('android')){
-      this.speechy.startListening(this.androidOptions).subscribe(
+      this.speech.startListening(this.androidOptions).subscribe(
         (data) => {
           this.messages.push({
             isHuman: true,
@@ -75,7 +74,7 @@ export class HomePage {
       });
     }
     else if(this.platform.is('ios')){
-      this.speechy.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
+      this.speech.startListening(this.iosOptions).subscribe(data => this.speechList = data, error => console.log(error));
       console.log(this.speechList);
     }
   }
@@ -84,31 +83,44 @@ export class HomePage {
     try {
         await ApiAIPlugin.requestText(
           {
-            query
+            query,
+            originalRequest: {
+              source: 'WWT chat bot',
+              data: 'messages'
+            }
           },
            (response) => {
-            //  let layout = response.result.fulfillment.data.layout;
-            //  let speech = response.result.fulfillment;
-               console.log(JSON.stringify(response.result.fulfillment))
-
-                // console.log(JSON.stringify)this.botTalk.result.fulfillment.data)
-
-                // this.messages.push({
-                //   isHuman: false,
-                //   layout: layout,
-                //   text: speech,
-                //   time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
-                // });
+             console.log(JSON.stringify(response))
+             console.log(JSON.stringify(response.result))
+             let layout = response.result.fulfillment.data.layout;
+             let speech = response.result.fulfillment;
+               if(response.result.fulfillment.speech){
+                 if(this.platform.is('ios')){
+                    this.messages.push({
+                      isHuman: false,
+                      layout: layout,
+                      text: speech,
+                      time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                    });
+                  this.ref.detectChanges();
+                } else {
+                  this.messages.push({
+                      isHuman: false,
+                      layout: '',
+                      text: speech,
+                      time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                    });
+                  this.ref.detectChanges();
+                }
+               } else {
+                 this.messages.push({
+                  isHuman: false,
+                  layout: '',
+                  text: "I'm sorry. I could not find an answer to that request.",
+                  time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
+                });
                 this.ref.detectChanges();
-              //  } else {
-              //    this.messages.push({
-              //     isHuman: false,
-              //     layout: '',
-              //     text: "I'm sorry. I could not find an answer to that request.",
-              //     time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
-              //   });
-              //   this.ref.detectChanges();
-              //  }
+               }
             },
             (error) => {
                 console.error(error);
@@ -130,7 +142,7 @@ export class HomePage {
                 console.log('3', voice)
                 this.messages.push({
                   isHuman: false,
-                  layout: response.result.fulfillment.data.layout,
+                  layout: '',
                   text: voice,
                   time: new Date().toLocaleTimeString().replace(/:\d+ /, ' ')
                 });
@@ -159,7 +171,7 @@ export class HomePage {
 
   async getSupportedLanguages():Promise<Array<string>> {
     try{
-      const languages = await this.speechy.getSupportedLanguages();
+      const languages = await this.speech.getSupportedLanguages();
       console.log(languages);
       return languages;
     }
@@ -170,7 +182,7 @@ export class HomePage {
 
   async hasPermission():Promise<boolean> {
     try{
-      const permission = await this.speechy.hasPermission();
+      const permission = await this.speech.hasPermission();
       console.log(permission)
       return permission;
     }
@@ -181,7 +193,7 @@ export class HomePage {
 
   async getPermission():Promise<void> {
     try{
-      const permission = await this.speechy.requestPermission();
+      const permission = await this.speech.requestPermission();
       console.log(permission)
       return permission;
     }
@@ -191,7 +203,7 @@ export class HomePage {
   }
 
   async isSpeechSupported():Promise<boolean> {
-    const isAvailable = await this.speechy.isRecognitionAvailable();
+    const isAvailable = await this.speech.isRecognitionAvailable();
     console.log(isAvailable)
     return isAvailable;
   }
