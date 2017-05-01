@@ -13,14 +13,14 @@
       <span>{{ message.text }}</span>
     </div>
     <div class="message" *ngIf="!message.isHuman && !message.layout" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
-      <span>{{ message.text.speech }}</span>
+      <span>{{ message.layout }}</span>
     </div>
     <div class="opportunity" *ngIf="!message.isHuman && message.layout === 'opportunityList'" [ngClass]="{'slide-right': hideTime, '': !hideTime}">
       <h3>Your top opportunities are:</h3>
       <div *ngFor="let opp of message.text.data.opportunityList">
         <span><b>{{ opp.Name }}</b><br>
-        Revenue: {{ opp.Total_Revenue__c }}<br>
-        GP: {{ opp.Total_Opportunity_GP__c }}
+        Revenue: ${{ opp.Total_Revenue__c }}<br>
+        GP: ${{ opp.Total_Opportunity_GP__c }}
         </span>
       </div>
     </div>
