@@ -50,7 +50,7 @@ export class MyApp {
 
       ApiAIPlugin.init(
         {
-            clientAccessToken: "0b7e616b5cf04d4a9d0c19ae94feb5ca", // insert your client access key here
+            clientAccessToken: "****************************", // insert your client access key here
             lang: "en" // set lang tag from list of supported languages
         },
         function(result) { /* success processing */ },
